@@ -1,0 +1,35 @@
+Receipt Ref:		BILL4706		22/02/2023, 22:14:14
+***************************************************************
+Items:		 Cost Of Items(Rs)
+***************************************************************
+Bath Soap			80
+
+Face Wash			240
+
+Hair Spray:			360
+
+Rice:				80
+
+Food Oil:			360
+
+Daal:				300
+
+Mazaa:			120
+
+Sprite:			60
+
+***************************************************************
+Cost Of Cosmetics		680Rs
+
+Cost Of Grocery		740Rs
+
+Cost Of Cold Drinks	180Rs
+
+Sub Total			1600Rs
+
+Service Tax			80.0Rs
+
+Total Cost			1680.0Rs
+
+***************************************************************
+
