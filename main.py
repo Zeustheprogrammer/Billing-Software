@@ -4,11 +4,18 @@ import random
 from datetime import datetime,timedelta
 import sqlite3
 import pyttsx3
+import os
+
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+db_path = os.path.join(script_dir, "data.sqlite3")
+
 
 
 root = Tk()        
 root.geometry('1270x690+0+0')
-root.title('Billing Software Using Python')
+root.title('Billing Software')
 root.config(bg='firebrick4')
         
 engine = pyttsx3.init()
@@ -18,7 +25,7 @@ engine.setProperty("voice", voices[1].id)
 topFrame=Frame(root,bd=10,relief=RIDGE,bg='firebrick4')
 topFrame.pack(side=TOP)
 
-labelTitle=Label(topFrame,text='Billing Software Using Python',font=('times new roman',30,'bold'),fg='yellow',bd=9,bg='red4',width=51)
+labelTitle=Label(topFrame,text='Billing Software',font=('times new roman',30,'bold'),fg='yellow',bd=9,bg='red4',width=51)
 labelTitle.grid(row=0,column=0)
 
 #frames
@@ -126,7 +133,7 @@ e_sprite.set('0')
 
 pricelist=list()
 
-conn = sqlite3.connect("C:\\Users\\abboj\\OneDrive\\Desktop\\data.sqlite3")
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 c.execute("SELECT PRICE FROM StockDetails;")
 tmplist = c.fetchall()
@@ -213,6 +220,10 @@ def printf():
     if textReceipt.get(1.0,END)=='\n':
         pass
     else:
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        c.execute("INSERT INTO data (billnumber,date,priceofCosmetics,priceofGrocery,priceofColddrinks,subtotalofItems,servicetaxvarofitems,Total,phnno) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                (billnumber,date,priceofCosmetics,priceofGrocery,priceofColddrinks,subtotalofItems,servicetaxvarofitems,subtotalofItems+servicetaxvarofitems,phnno.get()))            
         url=filedialog.asksaveasfile(mode='w',defaultextension='.txt')
         if url==None:
             pass
@@ -222,10 +233,6 @@ def printf():
             url.close()
             messagebox.showinfo('Information','Your Bill Is Succesfully Printed')
 
-        conn = sqlite3.connect("C:\\Users\\abboj\\OneDrive\\Desktop\\data.sqlite3")
-        c = conn.cursor()
-        c.execute("INSERT INTO data (billnumber,date,priceofCosmetics,priceofGrocery,priceofColddrinks,subtotalofItems,servicetaxvarofitems,Total,phnno) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                (billnumber,date,priceofCosmetics,priceofGrocery,priceofColddrinks,subtotalofItems,servicetaxvarofitems,subtotalofItems+servicetaxvarofitems,phnno.get()))            
         if e_bathsoap.get()!='0':
             sql = "UPDATE StockDetails SET stock = stock-? WHERE item = ?"
             val = (int(e_bathsoap.get()), "bathsoap")
@@ -452,7 +459,7 @@ def totalcost():
         messagebox.showerror('Error','No Item Is selected')
 
 def update():
-    conn = sqlite3.connect("C:\\Users\\abboj\\OneDrive\\Desktop\\data.sqlite3")
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     if  var1.get() != 0 or var2.get() != 0 or var3.get() != 0 or var4.get() != 0 or var5.get() != 0 or \
     var6.get() != 0 or var7.get() != 0 or var8.get() != 0 or var9.get() != 0 or var10.get() != 0 or\
@@ -561,11 +568,19 @@ def update():
         conn.close()
 
 def count():
-    conn = sqlite3.connect("C:\\Users\\abboj\\OneDrive\\Desktop\\data.sqlite3")
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     now = datetime.now()
-    start_date = datetime(now.year, now.month, 1).strftime("%d/%m/%Y, %H:%M:%S")
-    end_date = (datetime(now.year, now.month+1, 1) - timedelta(days=1)).strftime("%d/%m/%Y, %H:%M:%S")
+    cur_year = now.year
+    cur_month = now.month
+    next_month = (cur_month%12)+1
+    if(now.month==12): 
+        year= cur_year+1
+    else:
+        year = cur_year
+    start_date = datetime(cur_year, cur_month, 1).strftime("%d/%m/%Y, %H:%M:%S")
+    end_date = (datetime(year, next_month, 1) - timedelta(days=1)).strftime("%d/%m/%Y, %H:%M:%S")
+    
     query = "SELECT sum(maza),sum(cococola),sum(frooti),sum(thumbsup),sum(limbca),sum(sprite) FROM OrderDetailsOfColdDrinks WHERE date BETWEEN ? AND ?"
     c.execute(query, (start_date, end_date))
     tmp = c.fetchall()
